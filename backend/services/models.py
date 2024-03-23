@@ -84,8 +84,7 @@ class UserTariff(models.Model):
         on_delete=models.CASCADE,
         related_name='user_tariffs')
     start_date = models.DateField(
-        verbose_name='Start date',
-        auto_now_add=True)
+        verbose_name='Start date')
     end_date = models.DateField(
         verbose_name='End date',
         blank=True,
