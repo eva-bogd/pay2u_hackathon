@@ -87,6 +87,12 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# https://docs.djangoproject.com/en/5.0/ref/settings/
+# https://docs.djangoproject.com/en/5.0/ref/models/fields/#django.db.models.AutoField
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 """
 # settings for DB PostgreSQL
 DATABASES = {
