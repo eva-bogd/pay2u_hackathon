@@ -3,6 +3,7 @@ Django==4.2
 djangorestframework==3.14.0
 flake8==6.0.0
 mccabe==0.7.0
+pillow==10.2.0
 psycopg2-binary==2.9.9
 pycodestyle==2.10.0
 pyflakes==3.0.1
