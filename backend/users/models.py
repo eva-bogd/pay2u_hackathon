@@ -34,6 +34,7 @@ class User(AbstractUser):
     )
 
     phone_number = models.CharField(
+        max_length=MODELS_RESTRICTIONS['middle_length'],
         blank=False,
         verbose_name='Номер телефона',
         help_text='Введите номер телефона в формате +7 (111) 111-11-11',
@@ -44,4 +45,4 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f'{self.username} {self.last_name}'
+        return f'{self.first_name} {self.last_name}'

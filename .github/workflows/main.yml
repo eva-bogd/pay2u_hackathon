@@ -3,8 +3,9 @@ name: Pay2u_hackathon main workflow
 
 on:
   push:
-    branches:
-      - '**'
+    branches-ignore:
+      - 'main'
+      - 'develop'
 
 jobs:
   pre-commit:

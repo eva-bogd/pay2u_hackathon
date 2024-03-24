@@ -100,7 +100,7 @@ class UserTariff(models.Model):
         unique_together = ['user', 'tariff']
 
     def __str__(self):
-        f'{self.user}: {self.tariff.name}'
+        return f'{self.user}: {self.tariff.name}'
 
 
 class Transaction(models.Model):
