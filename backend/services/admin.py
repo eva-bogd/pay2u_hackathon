@@ -24,12 +24,10 @@ class TariffAdmin(admin.ModelAdmin):
         'duration',
         'price',
         'cashback',
-        'is_direct',
     )
     list_filter = (
         'subscription',
         'duration',
-        'is_direct',
     )
     search_fields = ('name',)
     ordering = ('subscription',)

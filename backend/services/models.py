@@ -7,16 +7,22 @@ class Subscription(models.Model):
     Модель, представляющая подписку на сервис.
     """
     name = models.CharField(
-        verbose_name='Service name',
+        verbose_name='Название сервиса',
         max_length=100,
         unique=True)
     logo = models.ImageField(
-        verbose_name='Logo image',
-        upload_to='services/images/')
+        verbose_name='Логотип',
+        upload_to='services/images/',
+        blank=True,
+        null=True)
     description = models.TextField(
-        verbose_name='Description')
+        verbose_name='Описание')
     usage_policy = models.TextField(
-        verbose_name='Usage Policy')
+        verbose_name='Политика использования')
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
 
     def __str__(self):
         return self.name
@@ -27,43 +33,44 @@ class Tariff(models.Model):
     Модель, представляющая тарифные планы для подписки на сервис.
     """
     name = models.CharField(
-        verbose_name='Tariff name',
+        verbose_name='Название тарифа',
         max_length=100,
         unique=True)
     subscription = models.ForeignKey(
         Subscription,
-        verbose_name='Subscription',
+        verbose_name='Подписка',
         on_delete=models.CASCADE,
         related_name='tariffs')
     description = models.TextField(
-        verbose_name='Description')
+        verbose_name='Описание')
     duration = models.DurationField(
-        verbose_name='Duration')
+        verbose_name='Продолжительность')
     price = models.DecimalField(
-        verbose_name='Price',
+        verbose_name='Цена',
         max_digits=10,
         decimal_places=2)
     test_period = models.DurationField(
-        verbose_name='Test period',
+        verbose_name='Пробный период',
         blank=True,
         null=True)
     test_price = models.DecimalField(
-        verbose_name='Test price',
+        verbose_name='Цена для пробного периода',
         max_digits=10,
         decimal_places=2,
         blank=True,
         null=True)
     cashback = models.DecimalField(
-        verbose_name='Сashback amount',
+        verbose_name='Кешбэк',
         max_digits=10,
         decimal_places=2,
         blank=True,
         null=True)
     cashback_conditions = models.TextField(
-        verbose_name='Cashback conditions')
-    is_direct = models.BooleanField(
-        verbose_name='Direct subscription',
-        default=True)
+        verbose_name='Условия начисления кешбэка')
+
+    class Meta:
+        verbose_name = 'Тариф'
+        verbose_name_plural = 'Тарифы'
 
     def __str__(self):
         return self.name
@@ -75,12 +82,12 @@ class UserTariff(models.Model):
     """
     user = models.ForeignKey(
         User,
-        verbose_name='User',
+        verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='user_tariffs')
     tariff = models.ForeignKey(
         Tariff,
-        verbose_name='Tariff',
+        verbose_name='Тариф',
         on_delete=models.CASCADE,
         related_name='user_tariffs')
     start_date = models.DateField(
@@ -89,14 +96,16 @@ class UserTariff(models.Model):
         verbose_name='End date',
         blank=True,
         null=True)
-    is_active = models.BooleanField(
-        verbose_name='Active subscription',
-        default=True)
     auto_renewal = models.BooleanField(
-        verbose_name='Auto renewal tariff',
+        verbose_name='Aвтопродление',
         default=True)
+    is_direct = models.BooleanField(
+        verbose_name='Прямая подписка',
+        default=False)
 
     class Meta:
+        verbose_name = 'Тариф пользователя'
+        verbose_name_plural = 'Тарифы пользователя'
         unique_together = ['user', 'tariff']
 
     def __str__(self):
@@ -115,21 +124,25 @@ class Transaction(models.Model):
     # Транзакция останется в базе при удалении тарифа пользователя?
     user_tariff = models.ForeignKey(
         UserTariff,
-        verbose_name='User Tariff',
+        verbose_name='Тариф пользователя',
         on_delete=models.SET_NULL,
         null=True)
     date = models.DateField(
-        verbose_name='Transaction date')
+        verbose_name='Дата оплаты')
     amount = models.DecimalField(
-        verbose_name='Transaction amount',
+        verbose_name='Сумма',
         max_digits=10,
         decimal_places=2)
     # Уточнить: какой тип данных будет храниться в статусе оплаты?
     payment_status = models.PositiveSmallIntegerField(
-        verbose_name='Payment Status',
+        verbose_name='Статус оплаты',
         choices=STATUS_CHOICES,
         default=2
     )
+
+    class Meta:
+        verbose_name = 'Оплата'
+        verbose_name_plural = 'Платежи'
 
     def __str__(self):
         return f'{self.date}: {self.amount}'
