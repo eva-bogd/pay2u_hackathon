@@ -50,9 +50,7 @@ def test_user_tariff_factory():
     assert user_tariff.tariff
     assert user_tariff.start_date
     assert user_tariff.end_date
-    assert (
-        user_tariff.auto_renewal is True or user_tariff.auto_renewal is False
-    )
+    assert type(user_tariff.auto_renewal) is bool
 
 
 @pytest.mark.django_db
