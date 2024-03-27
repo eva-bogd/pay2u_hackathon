@@ -1,6 +1,7 @@
 from datetime import timedelta
+
 from factory import Factory, Faker, SubFactory
-from services.models import Subscription, Tariff, UserTariff, Transaction
+from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
 
 
