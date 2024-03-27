@@ -25,7 +25,7 @@ class ServiceShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = ('id', 'name', 'logo', 'min_tariff_price')
+        fields = ('id', 'name', 'logo', 'description', 'min_tariff_price')
 
     def get_min_tariff_price(self, instance):
         min_price = instance.tariffs.aggregate(
