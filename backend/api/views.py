@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.db.models import Q
+from django.db.models import Min, Q, Sum
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -16,12 +16,21 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Subscription.objects.all()
     serializer_class = ServiceShortSerializer
 
+
+class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для подписок пользователя"""
+    serializer_class = MySubscriptionSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.user_tariffs.all()
+
     # для экрана my_subscriptions
     @action(detail=False,
             methods=['get'],
-            url_path='my_subscriptions')
-    def get_my_subscriptions(self, request):
-        """Возвращает активные и неактивные подписки + сумму кэшбэка."""
+            url_path='cashback')
+    def get_cashback(self, request):
+        """Возвращает сумму кэшбэка по подпискам на текущий месяц."""
         now = datetime.now()
         month_start = now.replace(day=1,
                                   hour=0,
@@ -29,30 +38,41 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
                                   second=0,
                                   microsecond=0)
         next_month = month_start.replace(month=month_start.month + 1)
-        user = request.user
-        mytariffs = user.user_tariffs.all()
-        active_tariffs = mytariffs.filter(end_date__gte=now)
-        inactive_tariffs = mytariffs.filter(end_date__lt=now)
+        mytariffs = self.get_queryset()
         # все подписки начало которых в этом месяце или
         # где есть автропрдление и конец подписки в этом месяце
         payload = mytariffs.filter(
             Q(start_date__gte=month_start)
             | (Q(auto_renewal=True) & Q(end_date__lt=next_month))
         )
-        active_subscriptions = MySubscriptionSerializer(
-            active_tariffs,
-            many=True
-        )
-        inactive_subscriptions = MySubscriptionSerializer(
-            inactive_tariffs,
-            many=True
-        )
-
         total_cashback = calculate_total_cashback(payload)
         response_data = {
-            'active_subscriptions': active_subscriptions.data,
-            'inactive_subscriptions': inactive_subscriptions.data,
-            'total_cashback': total_cashback,
+            "total_cashback": total_cashback
+        }
+        return Response(response_data)
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='next_payment')
+    def get_next_payment(self, request):
+        """Возвращает дату и сумму следующего запланированного платежа."""
+        mytariffs = self.get_queryset()
+        # тарифы по которым есть автопродление
+        auto_renewal_tariffs = mytariffs.filter(auto_renewal=True)
+        # выбираем из них тариф с ближайшей датой окончания
+        next_payment = auto_renewal_tariffs.aggregate(
+            min_end_date=Min('end_date')
+        )['min_end_date']
+        # суммируем цену к оплате по тарифам с датой окончания
+        # которую нашли выше
+        payment_sum = auto_renewal_tariffs.filter(
+            end_date=next_payment
+        ).aggregate(
+            Sum('tariff__price')
+        )['tariff__price__sum']
+        response_data = {
+            'next_payment_date': next_payment,
+            'payment_sum': payment_sum,
         }
         return Response(response_data)
 
