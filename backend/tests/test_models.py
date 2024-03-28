@@ -1,8 +1,7 @@
 import pytest
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from test_factories import (SubscriptionFactory, TariffFactory,
-                            TransactionFactory, UserFactory, UserTariffFactory,
-                            TransactionFactory)
+                            TransactionFactory, UserFactory, UserTariffFactory)
 from users.models import User
 
 
