@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Min
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
@@ -13,10 +15,18 @@ class MySubscriptionSerializer(serializers.Serializer):
     cashback = serializers.DecimalField(source='tariff.cashback',
                                         max_digits=10,
                                         decimal_places=2)
+    is_active = serializers.SerializerMethodField()
 
     class Meta:
         model = UserTariff
-        fields = ('id', 'name', 'logo', 'price', 'cashback')
+        fields = ('id', 'name', 'logo', 'price',
+                  'cashback', 'is_active', 'is_direct')
+
+    def get_is_active(self, instance):
+        now = datetime.now()
+        if instance.end_date >= now:
+            return True
+        return False
 
 
 class ServiceShortSerializer(serializers.ModelSerializer):
