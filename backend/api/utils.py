@@ -14,5 +14,5 @@ def calculate_total_cashback(payload: QuerySet[UserTariff]) -> Decimal:
         cashback_percentage = tariff.tariff.cashback
         if cashback_percentage:
             cashback_amount = price * cashback_percentage / 100
-            total_cashback += round(cashback_amount, 2)
-    return total_cashback
+            total_cashback += cashback_amount
+    return round(total_cashback, 2)
