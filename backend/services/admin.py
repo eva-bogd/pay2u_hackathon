@@ -21,13 +21,13 @@ class TariffAdmin(admin.ModelAdmin):
         'pk',
         'subscription',
         'name',
-        'duration',
+        'period',
         'price',
         'cashback',
     )
     list_filter = (
         'subscription',
-        'duration',
+        'period',
     )
     search_fields = ('name',)
     ordering = ('subscription',)

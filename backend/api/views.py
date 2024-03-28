@@ -1,21 +1,23 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db.models import Min, Q, Sum
 from rest_framework import viewsets
+
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from services.models import Subscription, Tariff
+from services.models import Subscription, Tariff, Transaction, UserTariff
 
 from .serializers import (MySubscriptionSerializer, ServiceShortSerializer,
-                          SubscriptionShortSerializer, TariffSerializer)
+                          SubscriptionTariffSerializer, TariffSerializer,
+                          UserTariffSerializer)
 from .utils import calculate_total_cashback
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок"""
+    # http://127.0.0.1:8000/api/v1/services/
     queryset = Subscription.objects.all()
     serializer_class = ServiceShortSerializer
-
 
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
@@ -76,29 +78,94 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         }
         return Response(response_data)
 
-
-class TariffViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для тарифов."""
-    serializer_class = TariffSerializer
-
-    def get_queryset(self):
-        queryset = Subscription.objects.get(id=self.kwargs['service_id'])
-        return queryset
-
     # для экрана choose_plan
-    @action(detail=True,
-            methods=['get'])
-    def get_tariffs(self, request, pk=None):
+    # http://127.0.0.1:8000/api/v1/services/<services_id>/
+    def retrieve(self, request, pk=None):
+        """Возвращает подписку и список тарифов к ней."""
         subscription_id = pk
         queryset = Subscription.objects.filter(
             id=subscription_id).prefetch_related('tariffs')
-        serializer = SubscriptionShortSerializer(queryset, many=True)
+        serializer = SubscriptionTariffSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    # для экрана about_subscription
-    @action(detail=True,
-            methods=['get'])
-    def get_tariff_detail(self, request, pk=None):
-        tariff = Tariff.objects.get(id=pk)
-        serializer = TariffSerializer(tariff)
+
+class TariffViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для тарифов."""
+    # получить инфу о конкретном тарифе:
+    # http://127.0.0.1:8000/api/v1/tariffs/<tariff_id>/
+    queryset = Tariff.objects.all()
+    serializer_class = TariffSerializer
+
+    # метод для подписки на тариф (создание тарифа пользователя)
+    # http://127.0.0.1:8000/api/v1/tariffs/<tariff_id>/subscribe/
+    @action(methods=['post'],
+            detail=True,
+            url_path='subscribe')
+    def subscribe(self, request, *args, **kwargs):
+        """Создает и возвращает тариф пользователя и оплату по тарифу."""
+        user = request.user
+        tariff = self.get_object()
+
+        if UserTariff.objects.filter(user=user, tariff=tariff).exists():
+            return Response(
+                {'error': 'Вы уже подписаны на данный тариф.'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        # создаем оплату
+        transaction_date = datetime.now().date()
+        transaction = Transaction.objects.create(
+            user_tariff=None,  # юзер тариф пока не создаем
+            date=transaction_date,
+            amount=tariff.price,
+            payment_status=1)  # имитация успешного платежа
+
+        # создаем тариф пользователя
+        start_date = transaction_date
+        end_date = start_date + timedelta(days=30 * tariff.period)
+        user_tariff = UserTariff.objects.create(
+            user=user,
+            tariff=tariff,
+            start_date=transaction_date,
+            end_date=end_date)
+
+        transaction.user_tariff = user_tariff  # привязываем оплату к тарифу
+        transaction.save()
+        serializer = UserTariffSerializer(user_tariff)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserTariffViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для тарифов пользователя."""
+    # http://127.0.0.1:8000/api/v1/usertariffs/
+    # http://127.0.0.1:8000/api/v1/usertariffs/usertariffs_id/)
+    serializer_class = UserTariffSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.user_tariffs.all()
+
+    # метод для отключения автопродления
+    # http://127.0.0.1:8000/api/v1/usertariffs/<usertariffs_id>/autorenewal_off/)
+    @action(methods=['post'],
+            detail=True,
+            url_path='autorenewal_off')
+    def autorenewal_off(self, request, *args, **kwargs):
+        user_tariff_id = kwargs.get('pk')
+        user_tariff = UserTariff.objects.get(id=user_tariff_id)
+        user_tariff.auto_renewal = False
+        user_tariff.save()
+        serializer = UserTariffSerializer(user_tariff)
+        return Response(serializer.data)
+
+    # метод для включения автопродления
+    # http://127.0.0.1:8000/api/v1/usertariffs/<usertariffs_id>/autorenewal_on/)
+    @action(methods=['post'],
+            detail=True,
+            url_path='autorenewal_on')
+    def autorenewal_on(self, request, *args, **kwargs):
+        user_tariff_id = kwargs.get('pk')
+        user_tariff = UserTariff.objects.get(id=user_tariff_id)
+        user_tariff.auto_renewal = True
+        user_tariff.save()
+        serializer = UserTariffSerializer(user_tariff)
         return Response(serializer.data)

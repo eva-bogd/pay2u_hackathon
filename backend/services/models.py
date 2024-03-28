@@ -32,6 +32,13 @@ class Tariff(models.Model):
     """
     Модель, представляющая тарифные планы для подписки на сервис.
     """
+
+    class PeriodChoices(models.IntegerChoices):
+        ONE_MONTH = 1, '1 месяц'
+        THREE_MONTHS = 3, '3 месяца'
+        SIX_MONTHS = 6, '6 месяцев'
+        TWELVE_MONTHS = 12, '12 месяцев'
+
     name = models.CharField(
         verbose_name='Название тарифа',
         max_length=100,
@@ -43,14 +50,22 @@ class Tariff(models.Model):
         related_name='tariffs')
     description = models.TextField(
         verbose_name='Описание')
-    duration = models.DurationField(
-        verbose_name='Продолжительность')
+    # period = models.PositiveSmallIntegerField(
+    #     verbose_name='Срок')
+    period = models.PositiveSmallIntegerField(
+        verbose_name='Срок',
+        choices=PeriodChoices.choices)
     price = models.DecimalField(
         verbose_name='Цена',
         max_digits=10,
         decimal_places=2)
-    test_period = models.DurationField(
+    # test_period = models.PositiveSmallIntegerField(
+    #     verbose_name='Пробный период',
+    #     blank=True,
+    #     null=True)
+    test_period = models.PositiveSmallIntegerField(
         verbose_name='Пробный период',
+        choices=PeriodChoices.choices,
         blank=True,
         null=True)
     test_price = models.DecimalField(
@@ -91,9 +106,9 @@ class UserTariff(models.Model):
         on_delete=models.CASCADE,
         related_name='user_tariffs')
     start_date = models.DateField(
-        verbose_name='Start date')
+        verbose_name='Дата начала')
     end_date = models.DateField(
-        verbose_name='End date',
+        verbose_name='Дата окончания',
         blank=True,
         null=True)
     auto_renewal = models.BooleanField(
@@ -109,7 +124,7 @@ class UserTariff(models.Model):
         unique_together = ['user', 'tariff']
 
     def __str__(self):
-        return f'{self.user}: {self.tariff.name}'
+        return f'{self.user.email}: {self.tariff.name}'
 
 
 class Transaction(models.Model):
@@ -128,7 +143,9 @@ class Transaction(models.Model):
         on_delete=models.SET_NULL,
         null=True)
     date = models.DateField(
-        verbose_name='Дата оплаты')
+        verbose_name='Дата оплаты',
+        blank=True,
+        null=True)
     amount = models.DecimalField(
         verbose_name='Сумма',
         max_digits=10,
@@ -137,8 +154,7 @@ class Transaction(models.Model):
     payment_status = models.PositiveSmallIntegerField(
         verbose_name='Статус оплаты',
         choices=STATUS_CHOICES,
-        default=2
-    )
+        default=2)
 
     class Meta:
         verbose_name = 'Оплата'
