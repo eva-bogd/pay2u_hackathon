@@ -1,18 +1,14 @@
 from datetime import datetime, timedelta
 
 from django.db.models import Q
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from services.models import Subscription, Tariff, UserTariff, Transaction
+from services.models import Subscription, Tariff, Transaction, UserTariff
 
-from .serializers import (
-    MySubscriptionSerializer,
-    ServiceShortSerializer,
-    SubscriptionTariffSerializer,
-    TariffSerializer,
-    UserTariffSerializer
-)
+from .serializers import (MySubscriptionSerializer, ServiceShortSerializer,
+                          SubscriptionTariffSerializer, TariffSerializer,
+                          UserTariffSerializer)
 from .utils import calculate_total_cashback
 
 
