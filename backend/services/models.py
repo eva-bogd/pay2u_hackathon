@@ -137,6 +137,12 @@ class Transaction(models.Model):
         (2, 'Ожидается')
     ]
     # Транзакция останется в базе при удалении тарифа пользователя?
+    user = models.ForeignKey(
+        User,
+        verbose_name="Оплата",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="transactions")
     user_tariff = models.ForeignKey(
         UserTariff,
         verbose_name='Тариф пользователя',
