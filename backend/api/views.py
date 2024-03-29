@@ -1,16 +1,15 @@
 from datetime import datetime, timedelta
 
-from django.db.models import Min, Q, Sum
-from rest_framework import viewsets
-
+from django.db.models import Q, Sum
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
 from .serializers import (MySubscriptionSerializer, ServiceShortSerializer,
                           SubscriptionTariffSerializer, TariffSerializer,
-                          UserTariffSerializer)
-from .utils import calculate_total_cashback
+                          TransactionSerializer, UserTariffSerializer)
+from .utils import calculate_total_cashback, get_next_payments_data
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -18,6 +17,7 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     # http://127.0.0.1:8000/api/v1/services/
     queryset = Subscription.objects.all()
     serializer_class = ServiceShortSerializer
+
 
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
@@ -33,12 +33,8 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
             url_path='cashback')
     def get_cashback(self, request):
         """Возвращает сумму кэшбэка по подпискам на текущий месяц."""
-        now = datetime.now()
-        month_start = now.replace(day=1,
-                                  hour=0,
-                                  minute=0,
-                                  second=0,
-                                  microsecond=0)
+        now = datetime.now().date()
+        month_start = now.replace(day=1)
         next_month = month_start.replace(month=month_start.month + 1)
         mytariffs = self.get_queryset()
         # все подписки начало которых в этом месяце или
@@ -59,24 +55,41 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_next_payment(self, request):
         """Возвращает дату и сумму следующего запланированного платежа."""
         mytariffs = self.get_queryset()
-        # тарифы по которым есть автопродление
-        auto_renewal_tariffs = mytariffs.filter(auto_renewal=True)
-        # выбираем из них тариф с ближайшей датой окончания
-        next_payment = auto_renewal_tariffs.aggregate(
-            min_end_date=Min('end_date')
-        )['min_end_date']
+        (next_payment_date,
+         next_payment_tariffs) = get_next_payments_data(mytariffs)
         # суммируем цену к оплате по тарифам с датой окончания
         # которую нашли выше
-        payment_sum = auto_renewal_tariffs.filter(
-            end_date=next_payment
-        ).aggregate(
+        payment_sum = next_payment_tariffs.aggregate(
             Sum('tariff__price')
         )['tariff__price__sum']
         response_data = {
-            'next_payment_date': next_payment,
+            'next_payment_date': next_payment_date,
             'payment_sum': payment_sum,
         }
         return Response(response_data)
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='next_payment_details')
+    def get_next_payment_details(self, request):
+        """Возвращает дату и сумму следующего запланированного платежа."""
+        mytariffs = self.get_queryset()
+        _, next_payment_tariffs = get_next_payments_data(mytariffs)
+        serializer = MySubscriptionSerializer(
+            next_payment_tariffs,
+            many=True
+        )
+        return Response(serializer.data)
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='payment_history')
+    def get_payment_history(self, request):
+        """Возвращает историю платежей."""
+        user = request.user
+        mytransactions = user.transactions.filter(payment_status=1)
+        serializer = TransactionSerializer(mytransactions, many=True)
+        return Response(serializer.data)
 
     # для экрана choose_plan
     # http://127.0.0.1:8000/api/v1/services/<services_id>/

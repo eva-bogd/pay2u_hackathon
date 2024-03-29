@@ -3,8 +3,10 @@ from datetime import datetime
 from django.db.models import Min
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from services.models import Subscription, Tariff, UserTariff
+from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
+
+from .utils import calculate_cashback_amount
 
 
 class MySubscriptionSerializer(serializers.Serializer):
@@ -17,17 +19,36 @@ class MySubscriptionSerializer(serializers.Serializer):
                                         max_digits=10,
                                         decimal_places=2)
     is_active = serializers.SerializerMethodField()
+    cashback_rub = serializers.SerializerMethodField()
 
     class Meta:
         model = UserTariff
-        fields = ('id', 'name', 'logo', 'price',
-                  'cashback', 'is_active', 'is_direct')
+        fields = ('id', 'name', 'logo', 'price', 'cashback',
+                  'is_active', 'is_direct', 'end_date', 'cashback_rub')
 
     def get_is_active(self, instance):
-        now = datetime.now()
-        if instance.end_date >= now:
-            return True
-        return False
+        now = datetime.now().date()
+        return instance.end_date >= now
+
+    def get_cashback_rub(self, instance):
+        return calculate_cashback_amount(instance)
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        source='user_tariff.tariff.subscription.name'
+    )
+    logo = serializers.ImageField(
+        source='user_tariff.tariff.subscription.logo'
+    )
+    cashback_rub = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Transaction
+        fields = ('id', 'date', 'name', 'logo', 'cashback_rub')
+
+    def get_cashback_rub(self, instance):
+        return calculate_cashback_amount(instance)
 
 
 class ServiceShortSerializer(serializers.ModelSerializer):
@@ -113,7 +134,7 @@ class TariffSerializer(serializers.ModelSerializer):
                   'cashback_conditions')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id',
