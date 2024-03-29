@@ -141,7 +141,8 @@ class Transaction(models.Model):
         UserTariff,
         verbose_name='Тариф пользователя',
         on_delete=models.SET_NULL,
-        null=True)
+        null=True,
+        related_name='transactions')
     date = models.DateField(
         verbose_name='Дата оплаты',
         blank=True,
@@ -150,6 +151,12 @@ class Transaction(models.Model):
         verbose_name='Сумма',
         max_digits=10,
         decimal_places=2)
+    cashback = models.DecimalField(
+        verbose_name='Кешбэк',
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True)
     # Уточнить: какой тип данных будет храниться в статусе оплаты?
     payment_status = models.PositiveSmallIntegerField(
         verbose_name='Статус оплаты',
@@ -157,6 +164,7 @@ class Transaction(models.Model):
         default=2)
 
     class Meta:
+        ordering = ['-date']
         verbose_name = 'Оплата'
         verbose_name_plural = 'Платежи'
 
