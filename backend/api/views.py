@@ -33,12 +33,8 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
             url_path='cashback')
     def get_cashback(self, request):
         """Возвращает сумму кэшбэка по подпискам на текущий месяц."""
-        now = datetime.now()
-        month_start = now.replace(day=1,
-                                  hour=0,
-                                  minute=0,
-                                  second=0,
-                                  microsecond=0)
+        now = datetime.now().date()
+        month_start = now.replace(day=1)
         next_month = month_start.replace(month=month_start.month + 1)
         mytariffs = self.get_queryset()
         # все подписки начало которых в этом месяце или
@@ -78,21 +74,20 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_next_payment_details(self, request):
         """Возвращает дату и сумму следующего запланированного платежа."""
         mytariffs = self.get_queryset()
-        (next_payment_date,
-         next_payment_tariffs) = get_next_payments_data(mytariffs)
+        _, next_payment_tariffs = get_next_payments_data(mytariffs)
         serializer = MySubscriptionSerializer(
             next_payment_tariffs,
             many=True
         )
         return Response(serializer.data)
 
-    @action(details=False,
+    @action(detail=False,
             methods=['get'],
             url_path='payment_history')
     def get_payment_history(self, request):
         """Возвращает историю платежей."""
-        mytariffs = self.get_queryset()
-        mytransactions = mytariffs.transactions.filter(payment_status=1)
+        user = request.user
+        mytransactions = user.transactions.filter(payment_status=1)
         serializer = TransactionSerializer(mytransactions, many=True)
         return Response(serializer.data)
 

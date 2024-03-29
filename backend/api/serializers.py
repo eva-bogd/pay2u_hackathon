@@ -27,10 +27,8 @@ class MySubscriptionSerializer(serializers.Serializer):
                   'is_active', 'is_direct', 'end_date', 'cashback_rub')
 
     def get_is_active(self, instance):
-        now = datetime.now()
-        if instance.end_date >= now:
-            return True
-        return False
+        now = datetime.now().date()
+        return instance.end_date >= now
 
     def get_cashback_rub(self, instance):
         return calculate_cashback_amount(instance)
@@ -136,7 +134,7 @@ class TariffSerializer(serializers.ModelSerializer):
                   'cashback_conditions')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id',
