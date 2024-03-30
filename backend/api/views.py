@@ -3,14 +3,10 @@ from datetime import datetime, timedelta
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 from services.models import Subscription, Tariff, Transaction, UserTariff
-
-from .utils import (calculate_total_cashback, get_next_payments_data,
-                    simulate_payment_status)
 
 from .serializers import (
     MySubscriptionSerializer,
@@ -21,7 +17,9 @@ from .serializers import (
     UserTariffSerializer,
     TransactionSerializer
 )
-from .utils import calculate_total_cashback
+
+from .utils import (calculate_total_cashback, get_next_payments_data,
+                    simulate_payment_status)
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -113,7 +111,6 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = TransactionSerializer(mytransactions, many=True)
         return Response(serializer.data)
 
-    # http://127.0.0.1:8000/api/v1/my_subscriptions/<usertariffs_id>/autorenewal_off/)
     @action(methods=['post'],
             detail=True,
             url_path='autorenewal_off')
@@ -126,7 +123,6 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = UserTariffSerializer(user_tariff)
         return Response(serializer.data)
 
-    # http://127.0.0.1:8000/api/v1/my_subscriptions/<usertariffs_id>/autorenewal_on/)
     @action(methods=['post'],
             detail=True,
             url_path='autorenewal_on')
