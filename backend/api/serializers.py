@@ -1,8 +1,12 @@
+from datetime import datetime
+
 from django.db.models import Min
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from services.models import Subscription, Tariff, UserTariff
+from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
+
+from .utils import calculate_cashback_amount
 
 
 class MySubscriptionSerializer(serializers.Serializer):
@@ -14,10 +18,37 @@ class MySubscriptionSerializer(serializers.Serializer):
     cashback = serializers.DecimalField(source='tariff.cashback',
                                         max_digits=10,
                                         decimal_places=2)
+    is_active = serializers.SerializerMethodField()
+    cashback_rub = serializers.SerializerMethodField()
 
     class Meta:
         model = UserTariff
-        fields = ('id', 'name', 'logo', 'price', 'cashback')
+        fields = ('id', 'name', 'logo', 'price', 'cashback',
+                  'is_active', 'is_direct', 'end_date', 'cashback_rub')
+
+    def get_is_active(self, instance):
+        now = datetime.now().date()
+        return instance.end_date >= now
+
+    def get_cashback_rub(self, instance):
+        return calculate_cashback_amount(instance)
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(
+        source='user_tariff.tariff.subscription.name'
+    )
+    logo = serializers.ImageField(
+        source='user_tariff.tariff.subscription.logo'
+    )
+    cashback_rub = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Transaction
+        fields = ('id', 'date', 'name', 'logo', 'cashback_rub')
+
+    def get_cashback_rub(self, instance):
+        return calculate_cashback_amount(instance)
 
 
 class ServiceShortSerializer(serializers.ModelSerializer):
@@ -40,7 +71,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = ('id', 'name', 'logo', 'description', 'usage_policy')
+        fields = ('id',
+                  'name',
+                  'logo',
+                  'description',
+                  'partner_rules',
+                  'personal_data_policy')
 
 
 class TariffListSerializer(serializers.ModelSerializer):
@@ -103,7 +139,7 @@ class TariffSerializer(serializers.ModelSerializer):
                   'cashback_conditions')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id',
@@ -112,6 +148,22 @@ class UserSerializer(serializers.ModelSerializer):
                   'father_name',
                   'last_name',
                   'phone_number')
+
+
+class CustomCurrentUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    full_name = serializers.CharField()
+    phone_number = serializers.CharField()
+
+    def to_representation(self, instance):
+        full_name = (f'{instance.last_name} '
+                     f'{instance.first_name} '
+                     f'{instance.father_name}')
+        return {
+            'id': instance.id,
+            'full_name': full_name,
+            'phone_number': instance.phone_number
+        }
 
 
 class UserTariffSerializer(serializers.ModelSerializer):
