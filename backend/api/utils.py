@@ -1,4 +1,5 @@
 from decimal import Decimal
+import random
 
 from django.db.models import Min, QuerySet
 from services.models import UserTariff
@@ -42,3 +43,8 @@ def get_next_payments_data(
         end_date=next_payment_date
     )
     return next_payment_date, queryset
+
+
+def simulate_payment_status():
+    """Возвращает рандомный статус платежа (имитация ответа банка)."""
+    return random.choice([0, 1])

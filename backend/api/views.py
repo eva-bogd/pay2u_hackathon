@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import random
 
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
@@ -10,7 +9,8 @@ from rest_framework.response import Response
 
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
-from .utils import calculate_total_cashback, get_next_payments_data
+from .utils import (calculate_total_cashback, get_next_payments_data,
+                    simulate_payment_status)
 
 from .serializers import (
     MySubscriptionSerializer,
@@ -113,17 +113,37 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = TransactionSerializer(mytransactions, many=True)
         return Response(serializer.data)
 
+    # http://127.0.0.1:8000/api/v1/my_subscriptions/<usertariffs_id>/autorenewal_off/)
+    @action(methods=['post'],
+            detail=True,
+            url_path='autorenewal_off')
+    def autorenewal_off(self, request, *args, **kwargs):
+        """Метод для отключения автопродления."""
+        user_tariff_id = kwargs.get('pk')
+        user_tariff = UserTariff.objects.get(id=user_tariff_id)
+        user_tariff.auto_renewal = False
+        user_tariff.save()
+        serializer = UserTariffSerializer(user_tariff)
+        return Response(serializer.data)
+
+    # http://127.0.0.1:8000/api/v1/my_subscriptions/<usertariffs_id>/autorenewal_on/)
+    @action(methods=['post'],
+            detail=True,
+            url_path='autorenewal_on')
+    def autorenewal_on(self, request, *args, **kwargs):
+        """Метод для включения автопродления."""
+        user_tariff_id = kwargs.get('pk')
+        user_tariff = UserTariff.objects.get(id=user_tariff_id)
+        user_tariff.auto_renewal = True
+        user_tariff.save()
+        serializer = UserTariffSerializer(user_tariff)
+        return Response(serializer.data)
+
 
 class CurrentUserView(APIView):
     def get(self, request, *args, **kwargs):
         serializer = CustomCurrentUserSerializer(request.user)
         return Response(serializer.data)
-
-
-class BankSimulator:
-    @staticmethod
-    def simulate_payment_status():
-        return random.choice([0, 1])
 
 
 class TariffViewSet(viewsets.ReadOnlyModelViewSet):
@@ -154,7 +174,7 @@ class TariffViewSet(viewsets.ReadOnlyModelViewSet):
             user_tariff=None,  # юзер тариф пока не создаем
             date=transaction_date,
             amount=tariff.price,
-            payment_status=BankSimulator.simulate_payment_status())
+            payment_status=simulate_payment_status())
 
         # если оплата прошла, подписываем пользователя
         if transaction.payment_status == 1:
@@ -177,40 +197,3 @@ class TariffViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(
                 {'message': 'Не удалось оформить подписку.'},
                 status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserTariffViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для тарифов пользователя."""
-    # http://127.0.0.1:8000/api/v1/usertariffs/
-    # http://127.0.0.1:8000/api/v1/usertariffs/usertariffs_id/)
-    serializer_class = UserTariffSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        return user.user_tariffs.all()
-
-    # метод для отключения автопродления
-    # http://127.0.0.1:8000/api/v1/usertariffs/<usertariffs_id>/autorenewal_off/)
-    @action(methods=['post'],
-            detail=True,
-            url_path='autorenewal_off')
-    def autorenewal_off(self, request, *args, **kwargs):
-        user_tariff_id = kwargs.get('pk')
-        user_tariff = UserTariff.objects.get(id=user_tariff_id)
-        user_tariff.auto_renewal = False
-        user_tariff.save()
-        serializer = UserTariffSerializer(user_tariff)
-        return Response(serializer.data)
-
-    # метод для включения автопродления
-    # http://127.0.0.1:8000/api/v1/usertariffs/<usertariffs_id>/autorenewal_on/)
-    @action(methods=['post'],
-            detail=True,
-            url_path='autorenewal_on')
-    def autorenewal_on(self, request, *args, **kwargs):
-        user_tariff_id = kwargs.get('pk')
-        user_tariff = UserTariff.objects.get(id=user_tariff_id)
-        user_tariff.auto_renewal = True
-        user_tariff.save()
-        serializer = UserTariffSerializer(user_tariff)
-        return Response(serializer.data)

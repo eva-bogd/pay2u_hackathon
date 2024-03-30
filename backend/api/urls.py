@@ -5,7 +5,6 @@ from .views import (
     SubscriptionViewSet,
     MySubscriptionViewSet,
     TariffViewSet,
-    UserTariffViewSet
 )
 
 router_api_v1 = DefaultRouter()
@@ -18,9 +17,6 @@ router_api_v1.register(r'^my_subscriptions',
                        basename='my_subscriptions')
 router_api_v1.register(r'^tariffs',
                        TariffViewSet,
-                       basename='tariffs')
-router_api_v1.register(r'^tariffs',
-                       UserTariffViewSet,
                        basename='tariffs')
 
 
