@@ -1,27 +1,19 @@
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
+from .serializers import (CustomCurrentUserSerializer,
+                          MySubscriptionSerializer, ServiceShortSerializer,
+                          SubscriptionTariffSerializer, TariffSerializer,
+                          TransactionSerializer, UserTariffSerializer)
 from .utils import calculate_total_cashback, get_next_payments_data
-
-from .serializers import (
-    MySubscriptionSerializer,
-    ServiceShortSerializer,
-    SubscriptionTariffSerializer,
-    TariffSerializer,
-    CustomCurrentUserSerializer,
-    UserTariffSerializer,
-    TransactionSerializer
-)
-from .utils import calculate_total_cashback
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
