@@ -71,7 +71,12 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = ('id', 'name', 'logo', 'description', 'usage_policy')
+        fields = ('id',
+                  'name',
+                  'logo',
+                  'description',
+                  'partner_rules',
+                  'personal_data_policy')
 
 
 class TariffListSerializer(serializers.ModelSerializer):
@@ -143,6 +148,22 @@ class CustomUserSerializer(serializers.ModelSerializer):
                   'father_name',
                   'last_name',
                   'phone_number')
+
+
+class CustomCurrentUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    full_name = serializers.CharField()
+    phone_number = serializers.CharField()
+
+    def to_representation(self, instance):
+        full_name = (f'{instance.last_name} '
+                     f'{instance.first_name} '
+                     f'{instance.father_name}')
+        return {
+            'id': instance.id,
+            'full_name': full_name,
+            'phone_number': instance.phone_number
+        }
 
 
 class UserTariffSerializer(serializers.ModelSerializer):
