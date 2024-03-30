@@ -39,7 +39,7 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = SubscriptionTariffSerializer(queryset, many=True)
         return Response(serializer.data)
 
-      
+
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
     serializer_class = MySubscriptionSerializer

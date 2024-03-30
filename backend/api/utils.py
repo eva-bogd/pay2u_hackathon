@@ -44,7 +44,7 @@ def get_next_payments_data(
     )
     return next_payment_date, queryset
 
-  
+
 def simulate_payment_status():
     """Возвращает рандомный статус платежа (имитация ответа банка)."""
     return random.choice([0, 1])
