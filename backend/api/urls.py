@@ -19,5 +19,5 @@ router_api_v1.register(r'^tariffs',
 urlpatterns = [
     path('v1/', include(router_api_v1.urls)),
     path('v1/', include('djoser.urls')),  # Работа с пользователями
-    path('v1/', include('djoser.urls.authtoken')),  # Работа с токенами
+    path('v1/', include('djoser.urls.authtoken')),  # Работа с токенами.
 ]

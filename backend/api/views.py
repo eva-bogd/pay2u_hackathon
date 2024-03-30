@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -38,7 +39,7 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = SubscriptionTariffSerializer(queryset, many=True)
         return Response(serializer.data)
 
-
+      
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
     serializer_class = MySubscriptionSerializer
@@ -139,7 +140,6 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 class CurrentUserView(APIView):
     def get(self, request, *args, **kwargs):
         serializer = CustomCurrentUserSerializer(request.user)
-        return Response(serializer.data)
 
 
 class TariffViewSet(viewsets.ReadOnlyModelViewSet):
