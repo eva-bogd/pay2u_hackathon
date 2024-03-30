@@ -20,6 +20,7 @@ def calculate_cashback_amount(instance: UserTariff) -> Decimal:
 def calculate_total_cashback(payload: QuerySet[UserTariff]) -> Decimal:
     """Считает сумму кэшбэка."""
     total_cashback = Decimal(0)
+<<<<<<< HEAD
     for user_tariff in payload:
         cashback_amount = calculate_cashback_amount(user_tariff)
         total_cashback += cashback_amount
@@ -42,3 +43,14 @@ def get_next_payments_data(
         end_date=next_payment_date
     )
     return next_payment_date, queryset
+=======
+    for tariff in payload:
+        # Цена в рублях
+        price = tariff.tariff.price
+        # Кэшбэк в %
+        cashback_percentage = tariff.tariff.cashback
+        if cashback_percentage:
+            cashback_amount = price * cashback_percentage / 100
+            total_cashback += cashback_amount
+    return round(total_cashback, 2)
+>>>>>>> 6cc026655e5860181e19e5fed9f2500648fbc361

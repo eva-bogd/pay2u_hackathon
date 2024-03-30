@@ -17,8 +17,6 @@ class Subscription(models.Model):
         null=True)
     description = models.TextField(
         verbose_name='Описание')
-    # usage_policy = models.TextField(
-    #     verbose_name='Политика использования')
     partner_rules = models.TextField(
         verbose_name='Правила партнера')
     personal_data_policy = models.TextField(
