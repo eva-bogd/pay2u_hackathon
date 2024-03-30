@@ -19,7 +19,6 @@ class MySubscriptionSerializer(serializers.Serializer):
                                         max_digits=10,
                                         decimal_places=2)
     is_active = serializers.SerializerMethodField()
-<<<<<<< HEAD
     cashback_rub = serializers.SerializerMethodField()
 
     class Meta:
@@ -50,19 +49,6 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def get_cashback_rub(self, instance):
         return calculate_cashback_amount(instance)
-=======
-
-    class Meta:
-        model = UserTariff
-        fields = ('id', 'name', 'logo', 'price',
-                  'cashback', 'is_active', 'is_direct')
-
-    def get_is_active(self, instance):
-        now = datetime.now()
-        if instance.end_date >= now:
-            return True
-        return False
->>>>>>> 6cc026655e5860181e19e5fed9f2500648fbc361
 
 
 class ServiceShortSerializer(serializers.ModelSerializer):
