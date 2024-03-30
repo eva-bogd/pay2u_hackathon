@@ -18,6 +18,16 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Subscription.objects.all()
     serializer_class = ServiceShortSerializer
 
+    # для экрана choose_plan
+    # http://127.0.0.1:8000/api/v1/services/<services_id>/
+    def retrieve(self, request, pk=None):
+        """Возвращает подписку и список тарифов к ней."""
+        subscription_id = pk
+        queryset = Subscription.objects.filter(
+            id=subscription_id).prefetch_related('tariffs')
+        serializer = SubscriptionTariffSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
@@ -89,16 +99,6 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         user = request.user
         mytransactions = user.transactions.filter(payment_status=1)
         serializer = TransactionSerializer(mytransactions, many=True)
-        return Response(serializer.data)
-
-    # для экрана choose_plan
-    # http://127.0.0.1:8000/api/v1/services/<services_id>/
-    def retrieve(self, request, pk=None):
-        """Возвращает подписку и список тарифов к ней."""
-        subscription_id = pk
-        queryset = Subscription.objects.filter(
-            id=subscription_id).prefetch_related('tariffs')
-        serializer = SubscriptionTariffSerializer(queryset, many=True)
         return Response(serializer.data)
 
 

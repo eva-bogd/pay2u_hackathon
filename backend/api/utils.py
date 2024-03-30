@@ -1,7 +1,11 @@
+import random
 from decimal import Decimal
 
 from django.db.models import Min, QuerySet
 from services.models import UserTariff
+
+PAYMENT_DENIED = 0
+PAYMENT_SUCCESS = 1
 
 
 def calculate_cashback_amount(instance: UserTariff) -> Decimal:
@@ -42,3 +46,8 @@ def get_next_payments_data(
         end_date=next_payment_date
     )
     return next_payment_date, queryset
+
+
+def simulate_payment_status():
+    """Симулирует статус ответа банка, где 0-отказано, 1-оплачено"""
+    return random.choice([0, 1])

@@ -1,5 +1,6 @@
 import os
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -144,4 +145,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+}
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    'make-payments': {
+        'task': 'services.tasks.make_payments',
+        'schedule': crontab(minute=0, hour='*/6')  # run every 6 hours
+    },
 }
