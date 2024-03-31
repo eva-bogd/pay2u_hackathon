@@ -17,8 +17,10 @@ class Subscription(models.Model):
         null=True)
     description = models.TextField(
         verbose_name='Описание')
-    usage_policy = models.TextField(
-        verbose_name='Политика использования')
+    partner_rules = models.TextField(
+        verbose_name='Правила партнера')
+    personal_data_policy = models.TextField(
+        verbose_name='Политика обработки ПД')
 
     class Meta:
         verbose_name = 'Подписка'
@@ -117,6 +119,14 @@ class UserTariff(models.Model):
     is_direct = models.BooleanField(
         verbose_name='Прямая подписка',
         default=False)
+    promo_code = models.CharField(
+        verbose_name='Промокод',
+        max_length=13,
+        unique=True)
+    promo_code_period = models.DateField(
+        verbose_name='Дата истечения промокода',
+        blank=True,
+        null=True)
 
     class Meta:
         verbose_name = 'Тариф пользователя'
@@ -133,8 +143,7 @@ class Transaction(models.Model):
     """
     STATUS_CHOICES = [
         (0, 'Отказано'),
-        (1, 'Зачислено'),
-        (2, 'Ожидается')
+        (1, 'Зачислено')
     ]
     # Транзакция останется в базе при удалении тарифа пользователя?
     user = models.ForeignKey(
@@ -167,7 +176,7 @@ class Transaction(models.Model):
     payment_status = models.PositiveSmallIntegerField(
         verbose_name='Статус оплаты',
         choices=STATUS_CHOICES,
-        default=2)
+        default=0)
 
     class Meta:
         ordering = ['-date']
