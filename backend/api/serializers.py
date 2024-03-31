@@ -178,4 +178,6 @@ class UserTariffSerializer(serializers.ModelSerializer):
                   'start_date',
                   'end_date',
                   'auto_renewal',
-                  'is_direct')
+                  'is_direct',
+                  'promo_code',
+                  'promo_code_period')

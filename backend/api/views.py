@@ -20,7 +20,7 @@ from .serializers import (
 )
 
 from .utils import (calculate_total_cashback, get_next_payments_data,
-                    simulate_payment_status)
+                    simulate_payment_status, generate_promo_code)
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -180,9 +180,12 @@ class TariffViewSet(viewsets.ReadOnlyModelViewSet):
             user_tariff = UserTariff.objects.create(
                 user=user,
                 tariff=tariff,
-                start_date=transaction_date,
+                start_date=start_date,
                 end_date=end_date,
-                auto_renewal=auto_renewal)
+                auto_renewal=auto_renewal,
+                promo_code=generate_promo_code(),
+                # срок активации промокода 30 дней
+                promo_code_period=start_date + timedelta(days=30))
             # привязываем оплату к тарифу
             transaction.user_tariff = user_tariff
             transaction.save()
