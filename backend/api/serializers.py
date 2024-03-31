@@ -1,5 +1,4 @@
 from datetime import datetime
-import locale
 
 from django.db.models import Min
 from drf_extra_fields.fields import Base64ImageField
