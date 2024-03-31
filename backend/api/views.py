@@ -5,11 +5,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
-from .serializers import (CustomCurrentUserSerializer,
-                          MySubscriptionSerializer, ServiceShortSerializer,
+from .serializers import (MySubscriptionSerializer, ServiceShortSerializer,
                           SubscriptionTariffSerializer, TariffSerializer,
                           TransactionSerializer, UserTariffSerializer)
 from .utils import (calculate_total_cashback, generate_promo_code,
@@ -127,12 +125,6 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         user_tariff.auto_renewal = True
         user_tariff.save()
         serializer = UserTariffSerializer(user_tariff)
-        return Response(serializer.data)
-
-
-class CurrentUserView(APIView):
-    def get(self, request, *args, **kwargs):
-        serializer = CustomCurrentUserSerializer(request.user)
         return Response(serializer.data)
 
 
