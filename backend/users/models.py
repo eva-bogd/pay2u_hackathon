@@ -18,6 +18,7 @@ class User(AbstractUser):
         blank=False,
         verbose_name='Имя',
         help_text='Введите имя пользователя',
+        default='Иван',
     )
 
     last_name = models.CharField(
@@ -25,12 +26,14 @@ class User(AbstractUser):
         blank=False,
         verbose_name='Фамилия',
         help_text='Введите фамилию пользователя',
+        default='Иванов',
     )
 
     father_name = models.CharField(
         max_length=MODELS_RESTRICTIONS['max_length'],
         verbose_name='Отчество',
         help_text='Введите отчетство пользователя',
+        default='Иванович',
     )
 
     phone_number = models.CharField(
@@ -38,6 +41,7 @@ class User(AbstractUser):
         blank=False,
         verbose_name='Номер телефона',
         help_text='Введите номер телефона в формате +7 (111) 111-11-11',
+        default='+7 (111) 111-11-11',
     )
 
     class Meta:
