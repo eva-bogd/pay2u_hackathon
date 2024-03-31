@@ -1,5 +1,7 @@
 from decimal import Decimal
 import random
+import string
+
 
 from django.db.models import Min, QuerySet
 from services.models import UserTariff
@@ -48,3 +50,11 @@ def get_next_payments_data(
 def simulate_payment_status():
     """Возвращает рандомный статус платежа (имитация ответа банка)."""
     return random.choice([0, 1])
+
+
+def generate_promo_code():
+    """Генерирует и возвращает промокод."""
+    digits = ''.join(random.choices(string.digits, k=4))
+    characters = ''.join(random.choices(
+        string.ascii_uppercase + string.digits, k=8))
+    return f'{digits}-{characters}'

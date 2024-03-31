@@ -119,6 +119,14 @@ class UserTariff(models.Model):
     is_direct = models.BooleanField(
         verbose_name='Прямая подписка',
         default=False)
+    promo_code = models.CharField(
+        verbose_name='Промокод',
+        max_length=13,
+        unique=True)
+    promo_code_period = models.DateField(
+        verbose_name='Дата истечения промокода',
+        blank=True,
+        null=True)
 
     class Meta:
         verbose_name = 'Тариф пользователя'

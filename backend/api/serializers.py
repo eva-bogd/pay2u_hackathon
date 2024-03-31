@@ -1,4 +1,5 @@
 from datetime import datetime
+import locale
 
 from django.db.models import Min
 from drf_extra_fields.fields import Base64ImageField
@@ -178,4 +179,6 @@ class UserTariffSerializer(serializers.ModelSerializer):
                   'start_date',
                   'end_date',
                   'auto_renewal',
-                  'is_direct')
+                  'is_direct',
+                  'promo_code',
+                  'promo_code_period')
