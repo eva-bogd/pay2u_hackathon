@@ -135,13 +135,6 @@ class CurrentUserView(APIView):
         serializer = CustomCurrentUserSerializer(request.user)
         return Response(serializer.data)
 
-    def post(self, request):
-        serializer = CreateUserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class TariffViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для тарифов."""
