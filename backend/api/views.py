@@ -10,8 +10,9 @@ from services.models import Subscription, Tariff, Transaction, UserTariff
 from .serializers import (MySubscriptionSerializer, ServiceShortSerializer,
                           SubscriptionTariffSerializer, TariffSerializer,
                           TransactionSerializer, UserTariffSerializer)
-from .utils import (calculate_total_cashback, generate_promo_code,
-                    get_next_payments_data, simulate_payment_status)
+from .utils import (PAYMENT_SUCCESS, calculate_total_cashback,
+                    generate_promo_code, get_next_payments_data,
+                    simulate_payment_status)
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -99,7 +100,10 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_payment_history(self, request):
         """Возвращает историю платежей."""
         user = request.user
-        mytransactions = user.transactions.filter(payment_status=1)
+        mytransactions = Transaction.objects.filter(
+            user_tariff__user=user,
+            payment_status=PAYMENT_SUCCESS
+        )
         serializer = TransactionSerializer(mytransactions, many=True)
         return Response(serializer.data)
 
