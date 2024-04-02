@@ -51,7 +51,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         return calculate_cashback_amount(instance)
 
 
-class ServiceShortSerializer(serializers.ModelSerializer):
+class ServiceSerializer(serializers.ModelSerializer):
     logo = Base64ImageField()
     min_tariff_price = serializers.SerializerMethodField()
 
@@ -66,20 +66,19 @@ class ServiceShortSerializer(serializers.ModelSerializer):
         return min_price
 
 
-class SubscriptionSerializer(serializers.ModelSerializer):
-    logo = Base64ImageField()
-
+class PartnerRulesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
-        fields = ('id',
-                  'name',
-                  'logo',
-                  'description',
-                  'partner_rules',
-                  'personal_data_policy')
+        fields = ('id', 'partner_rules')
 
 
-class TariffListSerializer(serializers.ModelSerializer):
+class PDpolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ('id', 'personal_data_policy')
+
+
+class TariffSerializer(serializers.ModelSerializer):
     period = serializers.SerializerMethodField()
     test_period = serializers.SerializerMethodField()
     month_price = serializers.SerializerMethodField()
@@ -111,7 +110,7 @@ class TariffListSerializer(serializers.ModelSerializer):
 
 class SubscriptionTariffSerializer(serializers.ModelSerializer):
     logo = Base64ImageField()
-    tariffs = TariffListSerializer(many=True, read_only=True)
+    tariffs = TariffSerializer(many=True, read_only=True)
 
     class Meta:
         model = Subscription
@@ -120,23 +119,6 @@ class SubscriptionTariffSerializer(serializers.ModelSerializer):
                   'logo',
                   'description',
                   'tariffs')
-
-
-class TariffSerializer(serializers.ModelSerializer):
-    subscription = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = Tariff
-        fields = ('id',
-                  'subscription',
-                  'name',
-                  'description',
-                  'period',
-                  'price',
-                  'test_period',
-                  'test_price',
-                  'cashback',
-                  'cashback_conditions')
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

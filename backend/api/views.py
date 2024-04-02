@@ -2,14 +2,15 @@ from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
-from .serializers import (MySubscriptionSerializer, ServiceShortSerializer,
+from .serializers import (MySubscriptionSerializer, ServiceSerializer,
                           SubscriptionTariffSerializer, TariffSerializer,
-                          TransactionSerializer, UserTariffSerializer)
+                          TransactionSerializer, UserTariffSerializer,
+                          PartnerRulesSerializer, PDpolicySerializer)
 from .utils import (calculate_total_cashback, generate_promo_code,
                     get_next_payments_data, simulate_payment_status)
 
@@ -18,7 +19,9 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок"""
     # http://127.0.0.1:8000/api/v1/services/
     queryset = Subscription.objects.all()
-    serializer_class = ServiceShortSerializer
+    serializer_class = ServiceSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
 
     # для экрана choose_plan
     # http://127.0.0.1:8000/api/v1/services/<services_id>/
@@ -28,6 +31,28 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Subscription.objects.filter(
             id=subscription_id).prefetch_related('tariffs')
         serializer = SubscriptionTariffSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True,
+            methods=['get'],
+            url_path='partner_rules')
+    def get_partner_rules(self, request, pk=None):
+        """Возвращает правила партнера."""
+        subscription = self.get_object()
+        serializer = PartnerRulesSerializer(
+            {'partner_rules': subscription.partner_rules}
+        )
+        return Response(serializer.data)
+
+    @action(detail=True,
+            methods=['get'],
+            url_path='personal_data_policy')
+    def get_personal_data_policy(self, request, pk=None):
+        """Возвращает политику обработки персональных данных."""
+        subscription = self.get_object()
+        serializer = PDpolicySerializer(
+            {'personal_data_policy': subscription.personal_data_policy}
+        )
         return Response(serializer.data)
 
 
