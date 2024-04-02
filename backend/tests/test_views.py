@@ -1,16 +1,12 @@
+from api.serializers import (PartnerRulesSerializer, PDpolicySerializer,
+                             ServiceSerializer, SubscriptionTariffSerializer)
+from api.views import SubscriptionViewSet
+from rest_framework.authtoken.models import Token
 from rest_framework.test import (APIRequestFactory, APITestCase,
                                  force_authenticate)
-from rest_framework.authtoken.models import Token
-
-
 from services.models import Subscription
-from .test_factories import UserFactory, SubscriptionFactory, TariffFactory
 
-from api.views import SubscriptionViewSet
-from api.serializers import (ServiceSerializer,
-                             SubscriptionTariffSerializer,
-                             PartnerRulesSerializer,
-                             PDpolicySerializer)
+from .test_factories import SubscriptionFactory, TariffFactory, UserFactory
 
 
 class TestSubscriptionViewSet(APITestCase):
