@@ -2,15 +2,15 @@ from datetime import datetime, timedelta
 
 from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, filters
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
-from .serializers import (MySubscriptionSerializer, ServiceSerializer,
+from .serializers import (MySubscriptionSerializer, PartnerRulesSerializer,
+                          PDpolicySerializer, ServiceSerializer,
                           SubscriptionTariffSerializer, TariffSerializer,
-                          TransactionSerializer, UserTariffSerializer,
-                          PartnerRulesSerializer, PDpolicySerializer)
+                          TransactionSerializer, UserTariffSerializer)
 from .utils import (calculate_total_cashback, generate_promo_code,
                     get_next_payments_data, simulate_payment_status)
 

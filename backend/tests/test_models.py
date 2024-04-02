@@ -1,9 +1,10 @@
 import pytest
 from services.models import Subscription, Tariff, Transaction, UserTariff
+from users.models import User
+
 from .test_factories import (SubscriptionFactory, TariffFactory,
                              TransactionFactory, UserFactory,
                              UserTariffFactory)
-from users.models import User
 
 
 @pytest.mark.django_db
