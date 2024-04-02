@@ -9,8 +9,6 @@ urlpatterns = [
     path('api/', include('api.urls')),
 ]
 
-# http://127.0.0.1:8000/swagger/
-
 schema_view = get_schema_view(
     openapi.Info(
         title='P2U API',
