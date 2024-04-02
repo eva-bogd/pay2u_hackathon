@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.db.models import Min
+from django.db.models import Max, Min
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from services.models import Subscription, Tariff, Transaction, UserTariff
@@ -48,22 +48,31 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = ('id', 'date', 'name', 'logo', 'cashback_rub')
 
     def get_cashback_rub(self, instance):
-        return calculate_cashback_amount(instance)
+        user_tariff = instance.user_tariff
+        return calculate_cashback_amount(user_tariff)
 
 
 class ServiceSerializer(serializers.ModelSerializer):
     logo = Base64ImageField()
     min_tariff_price = serializers.SerializerMethodField()
+    cashback = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
-        fields = ('id', 'name', 'logo', 'description', 'min_tariff_price')
+        fields = ('id', 'name', 'logo', 'description',
+                  'cashback', 'min_tariff_price')
 
     def get_min_tariff_price(self, instance):
         min_price = instance.tariffs.aggregate(
             min_price=Min('price')
         )['min_price']
         return min_price
+
+    def get_cashback(self, instance):
+        max_cashback = instance.tariffs.aggregate(
+            max_cashback=Max('cashback')
+        )['max_cashback']
+        return max_cashback
 
 
 class PartnerRulesSerializer(serializers.ModelSerializer):
