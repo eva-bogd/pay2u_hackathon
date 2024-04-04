@@ -1,15 +1,11 @@
 import pytest
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
-
-from .test_factories import (SubscriptionFactory, TariffFactory,
-                             TransactionFactory, UserFactory,
-                             UserTariffFactory)
+from .fixture import user, subscription, tariff, user_tariff, transaction
 
 
 @pytest.mark.django_db
-def test_user_factory():
-    user = UserFactory()
+def test_user(user):
     assert isinstance(user, User)
     fields_to_check = ['email', 'first_name', 'last_name', 'father_name',
                        'phone_number']
@@ -18,8 +14,7 @@ def test_user_factory():
 
 
 @pytest.mark.django_db
-def test_subscription_factory():
-    subscription = SubscriptionFactory()
+def test_subscription(subscription):
     assert isinstance(subscription, Subscription)
     fields_to_check = ['name', 'description', 'partner_rules',
                        'personal_data_policy']
@@ -28,8 +23,7 @@ def test_subscription_factory():
 
 
 @pytest.mark.django_db
-def test_tariff_factory():
-    tariff = TariffFactory()
+def test_tariff(tariff):
     assert isinstance(tariff, Tariff)
     fields_to_check = ['name', 'subscription', 'description',
                        'period', 'price', 'test_period', 'test_price',
@@ -39,8 +33,7 @@ def test_tariff_factory():
 
 
 @pytest.mark.django_db
-def test_user_tariff_factory():
-    user_tariff = UserTariffFactory()
+def test_user_tariff(user_tariff):
     assert isinstance(user_tariff, UserTariff)
     fields_to_check = ['user', 'tariff', 'start_date', 'end_date',
                        'promo_code', 'promo_code_period']
@@ -51,10 +44,9 @@ def test_user_tariff_factory():
 
 
 @pytest.mark.django_db
-def test_transaction_factory():
-    transaction = TransactionFactory()
+def test_transaction(transaction):
     assert isinstance(transaction, Transaction)
-    fields_to_check = ['user_tariff', 'date', 'amount', 'cashback',
-                       'payment_status']
+    fields_to_check = ['user_tariff', 'date', 'amount', 'cashback']
     for field in fields_to_check:
         assert getattr(transaction, field)
+    assert transaction.payment_status in [0, 1]

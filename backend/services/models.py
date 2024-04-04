@@ -43,8 +43,7 @@ class Tariff(models.Model):
 
     name = models.CharField(
         verbose_name='Название тарифа',
-        max_length=100,
-        unique=True)
+        max_length=100)
     subscription = models.ForeignKey(
         Subscription,
         verbose_name='Подписка',
@@ -147,12 +146,6 @@ class Transaction(models.Model):
         (1, 'Зачислено')
     ]
     # Транзакция останется в базе при удалении тарифа пользователя?
-    user = models.ForeignKey(
-        User,
-        verbose_name="Пользователь",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="transactions")
     user_tariff = models.ForeignKey(
         UserTariff,
         verbose_name='Тариф пользователя',
@@ -173,7 +166,6 @@ class Transaction(models.Model):
         decimal_places=2,
         blank=True,
         null=True)
-    # Уточнить: какой тип данных будет храниться в статусе оплаты?
     payment_status = models.PositiveSmallIntegerField(
         verbose_name='Статус оплаты',
         choices=STATUS_CHOICES,
