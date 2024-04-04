@@ -1,4 +1,4 @@
-from factory import Factory, Faker, SubFactory
+from factory import Faker, SubFactory
 import factory.fuzzy
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
