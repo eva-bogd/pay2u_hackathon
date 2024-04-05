@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from factory import Factory, Faker, SubFactory
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
@@ -22,7 +20,8 @@ class SubscriptionFactory(Factory):
 
     name = Faker('name')
     description = Faker('text')
-    usage_policy = Faker('text')
+    partner_rules = Faker('text')
+    personal_data_policy = Faker('text')
 
 
 class TariffFactory(Factory):
@@ -32,9 +31,9 @@ class TariffFactory(Factory):
     name = Faker('name')
     subscription = SubFactory(SubscriptionFactory)
     description = Faker('text')
-    duration = timedelta(days=0)
+    period = Faker('random_element', elements=[1, 3, 6, 12])
     price = Faker('pydecimal', left_digits=10, right_digits=2)
-    test_period = Faker('time_delta')
+    test_period = Faker('random_element', elements=[1, 3, 6, 12])
     test_price = Faker('pydecimal', left_digits=10, right_digits=2)
     cashback = Faker('pydecimal', left_digits=10, right_digits=2)
     cashback_conditions = Faker('text')
@@ -50,6 +49,8 @@ class UserTariffFactory(Factory):
     end_date = Faker('date')
     is_direct = Faker('boolean')
     auto_renewal = Faker('boolean')
+    promo_code = Faker('text')
+    promo_code_period = Faker('date')
 
 
 class TransactionFactory(Factory):
@@ -58,5 +59,6 @@ class TransactionFactory(Factory):
 
     user_tariff = SubFactory(UserTariffFactory)
     date = Faker('date')
+    cashback = Faker('pydecimal', left_digits=10, right_digits=2)
     amount = Faker('pydecimal', left_digits=10, right_digits=2)
-    payment_status = Faker('random_element', elements=[0, 1, 2])
+    payment_status = Faker('random_element', elements=[0, 1])
