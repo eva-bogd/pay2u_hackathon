@@ -60,6 +60,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
     serializer_class = MySubscriptionSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('tariff__subscription__name',)
 
     def get_queryset(self):
         user = self.request.user
