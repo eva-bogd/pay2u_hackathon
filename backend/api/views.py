@@ -30,7 +30,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         subscription_id = pk
         queryset = Subscription.objects.filter(
             id=subscription_id).prefetch_related('tariffs')
-        serializer = SubscriptionTariffSerializer(queryset, many=True)
+        serializer = SubscriptionTariffSerializer(queryset, many=True,
+                                                  context={'request': request})
         return Response(serializer.data)
 
     @action(detail=True,
