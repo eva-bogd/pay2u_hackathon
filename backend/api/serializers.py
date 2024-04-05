@@ -48,7 +48,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = ('id', 'date', 'name', 'logo', 'cashback_rub')
 
     def get_cashback_rub(self, instance):
-        return calculate_cashback_amount(instance)
+        user_tariff = instance.user_tariff
+        return calculate_cashback_amount(user_tariff)
 
 
 class ServiceSerializer(serializers.ModelSerializer):
