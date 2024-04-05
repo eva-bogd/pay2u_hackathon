@@ -114,7 +114,7 @@ class TariffSerializer(serializers.ModelSerializer):
         return obj.get_test_period_display()
 
     def get_month_price(self, obj):
-        return obj.price / obj.period
+        return round((obj.price / obj.period), 2)
 
 
 class SubscriptionTariffSerializer(serializers.ModelSerializer):

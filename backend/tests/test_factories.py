@@ -1,9 +1,10 @@
-from factory import Factory, Faker, SubFactory
+from factory import Faker, SubFactory
+import factory.fuzzy
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
 
 
-class UserFactory(Factory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
@@ -14,7 +15,7 @@ class UserFactory(Factory):
     phone_number = Faker('phone_number')
 
 
-class SubscriptionFactory(Factory):
+class SubscriptionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Subscription
 
@@ -24,7 +25,7 @@ class SubscriptionFactory(Factory):
     personal_data_policy = Faker('text')
 
 
-class TariffFactory(Factory):
+class TariffFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Tariff
 
@@ -32,14 +33,14 @@ class TariffFactory(Factory):
     subscription = SubFactory(SubscriptionFactory)
     description = Faker('text')
     period = Faker('random_element', elements=[1, 3, 6, 12])
-    price = Faker('pydecimal', left_digits=10, right_digits=2)
-    test_period = Faker('random_element', elements=[1, 3, 6, 12])
-    test_price = Faker('pydecimal', left_digits=10, right_digits=2)
-    cashback = Faker('pydecimal', left_digits=10, right_digits=2)
+    price = Faker('pydecimal', left_digits=5, right_digits=2)
+    test_period = Faker('random_element', elements=[1, 3, 6])
+    test_price = Faker('pydecimal', left_digits=5, right_digits=2)
+    cashback = Faker('random_int', min=1, max=100)
     cashback_conditions = Faker('text')
 
 
-class UserTariffFactory(Factory):
+class UserTariffFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = UserTariff
 
@@ -53,12 +54,12 @@ class UserTariffFactory(Factory):
     promo_code_period = Faker('date')
 
 
-class TransactionFactory(Factory):
+class TransactionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Transaction
 
     user_tariff = SubFactory(UserTariffFactory)
     date = Faker('date')
-    cashback = Faker('pydecimal', left_digits=10, right_digits=2)
-    amount = Faker('pydecimal', left_digits=10, right_digits=2)
+    cashback = Faker('random_int', min=1, max=100)
+    amount = Faker('pydecimal', left_digits=5, right_digits=2)
     payment_status = Faker('random_element', elements=[0, 1])
