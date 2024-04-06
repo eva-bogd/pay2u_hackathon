@@ -3,7 +3,6 @@ Dockerfile
 db.sqlite3
 venv
 .git
-db.sqlite3
 .idea
 .vscodo
 .env
