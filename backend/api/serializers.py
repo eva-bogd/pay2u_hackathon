@@ -9,7 +9,7 @@ from users.models import User
 from .utils import calculate_cashback_amount
 
 
-class MySubscriptionSerializer(serializers.Serializer):
+class MySubscriptionSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='tariff.subscription.name')
     logo = serializers.ImageField(source='tariff.subscription.logo')
     price = serializers.DecimalField(source='tariff.price',
