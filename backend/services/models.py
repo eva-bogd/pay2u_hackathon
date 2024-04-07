@@ -14,7 +14,7 @@ class Subscription(models.Model):
         verbose_name='Логотип',
         upload_to='services/images/',
         blank=True,
-        null=True)
+    )
     description = models.TextField(
         verbose_name='Описание')
     partner_rules = models.TextField(
@@ -43,46 +43,46 @@ class Tariff(models.Model):
 
     name = models.CharField(
         verbose_name='Название тарифа',
-        max_length=100)
+        max_length=100
+    )
     subscription = models.ForeignKey(
         Subscription,
         verbose_name='Подписка',
         on_delete=models.CASCADE,
-        related_name='tariffs')
+        related_name='tariffs'
+    )
     description = models.TextField(
-        verbose_name='Описание')
-    # period = models.PositiveSmallIntegerField(
-    #     verbose_name='Срок')
+        verbose_name='Описание'
+    )
     period = models.PositiveSmallIntegerField(
         verbose_name='Срок',
-        choices=PeriodChoices.choices)
+        choices=PeriodChoices.choices
+    )
     price = models.DecimalField(
         verbose_name='Цена',
         max_digits=10,
-        decimal_places=2)
-    # test_period = models.PositiveSmallIntegerField(
-    #     verbose_name='Пробный период',
-    #     blank=True,
-    #     null=True)
+        decimal_places=2
+    )
     test_period = models.PositiveSmallIntegerField(
         verbose_name='Пробный период',
         choices=PeriodChoices.choices,
         blank=True,
-        null=True)
+    )
     test_price = models.DecimalField(
         verbose_name='Цена для пробного периода',
         max_digits=10,
         decimal_places=2,
         blank=True,
-        null=True)
+    )
     cashback = models.DecimalField(
         verbose_name='Кешбэк',
         max_digits=10,
         decimal_places=2,
         blank=True,
-        null=True)
+    )
     cashback_conditions = models.TextField(
-        verbose_name='Условия начисления кешбэка')
+        verbose_name='Условия начисления кешбэка'
+    )
 
     class Meta:
         verbose_name = 'Тариф'
@@ -100,33 +100,38 @@ class UserTariff(models.Model):
         User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
-        related_name='user_tariffs')
+        related_name='user_tariffs'
+    )
     tariff = models.ForeignKey(
         Tariff,
         verbose_name='Тариф',
         on_delete=models.CASCADE,
-        related_name='user_tariffs')
+        related_name='user_tariffs'
+    )
     start_date = models.DateField(
-        verbose_name='Дата начала')
+        verbose_name='Дата начала'
+    )
     end_date = models.DateField(
         verbose_name='Дата окончания',
         blank=True,
-        null=True)
+    )
     auto_renewal = models.BooleanField(
         verbose_name='Aвтопродление',
-        default=True)
+        default=True
+    )
     is_direct = models.BooleanField(
         verbose_name='Прямая подписка',
-        default=False)
+        default=False
+    )
     promo_code = models.CharField(
         verbose_name='Промокод',
         max_length=13,
         blank=True,
-        null=True)
+    )
     promo_code_period = models.DateField(
         verbose_name='Дата истечения промокода',
         blank=True,
-        null=True)
+    )
 
     class Meta:
         verbose_name = 'Тариф пользователя'
@@ -151,25 +156,28 @@ class Transaction(models.Model):
         verbose_name='Тариф пользователя',
         on_delete=models.SET_NULL,
         null=True,
-        related_name='transactions')
+        related_name='transactions'
+    )
     date = models.DateField(
         verbose_name='Дата оплаты',
         blank=True,
-        null=True)
+    )
     amount = models.DecimalField(
         verbose_name='Сумма',
         max_digits=10,
-        decimal_places=2)
+        decimal_places=2
+    )
     cashback = models.DecimalField(
         verbose_name='Кешбэк',
         max_digits=10,
         decimal_places=2,
         blank=True,
-        null=True)
+    )
     payment_status = models.PositiveSmallIntegerField(
         verbose_name='Статус оплаты',
         choices=STATUS_CHOICES,
-        default=0)
+        default=0
+    )
 
     class Meta:
         ordering = ['-date']

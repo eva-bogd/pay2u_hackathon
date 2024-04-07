@@ -1,12 +1,14 @@
 from datetime import datetime
+from decimal import Decimal
 
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Q, Sum
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
 
-from .utils import calculate_cashback_amount
+from .utils import (calculate_cashback_amount, get_next_payments,
+                    get_next_payments_date)
 
 
 class MySubscriptionSerializer(serializers.ModelSerializer):
@@ -34,7 +36,61 @@ class MySubscriptionSerializer(serializers.ModelSerializer):
         return calculate_cashback_amount(instance)
 
 
+class TotalCashbackSerializer(serializers.Serializer):
+    """Сериализатор для вывода суммарного кэшбека за месяц."""
+    total_cashback = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('total_cashback',)
+
+    def get_total_cashback(self, instance):
+        user = instance
+        now = datetime.now().date()
+        month_start = now.replace(day=1)
+        next_month = month_start.replace(month=month_start.month + 1)
+        # все подписки начало которых в этом месяце или
+        # где есть автропрдление и конец подписки в этом месяце
+        payload = user.user_tariffs.filter(
+            Q(start_date__gte=month_start)
+            | (Q(auto_renewal=True) & Q(end_date__lt=next_month))
+        )
+        total_cashback = Decimal(0)
+        for user_tariff in payload:
+            cashback_amount = calculate_cashback_amount(user_tariff)
+            total_cashback += cashback_amount
+        return round(total_cashback, 2)
+
+
+class NextPaymentSerializer(serializers.Serializer):
+    """Сериализатор для вывода следующей даты оплаты и суммы."""
+    next_payment_date = serializers.SerializerMethodField()
+    payment_sum = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('next_payment_date', 'payment_sum')
+
+    def get_next_payment_date(self, instance):
+        """Возвращает дату и сумму следующего запланированного платежа."""
+        mytariffs = instance.user_tariffs.all()
+        next_payment_date = get_next_payments_date(mytariffs)
+        return next_payment_date
+
+    def get_payment_sum(self, instance):
+        """Возвращает дату и сумму следующего запланированного платежа."""
+        mytariffs = instance.user_tariffs.all()
+        next_payments = get_next_payments(mytariffs)
+        # суммируем цену к оплате по тарифам с датой окончания
+        # которую нашли выше
+        payment_sum = next_payments.aggregate(
+            Sum('tariff__price')
+        )['tariff__price__sum']
+        return payment_sum
+
+
 class TransactionSerializer(serializers.ModelSerializer):
+    """Сериализатор для транзакций."""
     name = serializers.CharField(
         source='user_tariff.tariff.subscription.name'
     )
@@ -53,6 +109,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
+    """Сериализатор для онлайн сервисов."""
     logo = Base64ImageField()
     min_tariff_price = serializers.SerializerMethodField()
     cashback = serializers.SerializerMethodField()
@@ -76,18 +133,23 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class PartnerRulesSerializer(serializers.ModelSerializer):
+    """Сериализатор для правил партнера."""
+
     class Meta:
         model = Subscription
         fields = ('id', 'partner_rules')
 
 
 class PDpolicySerializer(serializers.ModelSerializer):
+    """Сериализатор для политики обработки персональных данных."""
+
     class Meta:
         model = Subscription
         fields = ('id', 'personal_data_policy')
 
 
 class TariffSerializer(serializers.ModelSerializer):
+    """Сериализатор для тарифа."""
     period = serializers.SerializerMethodField()
     test_period = serializers.SerializerMethodField()
     month_price = serializers.SerializerMethodField()
@@ -118,6 +180,8 @@ class TariffSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionTariffSerializer(serializers.ModelSerializer):
+    """Сериализатор для тарифов сервиса."""
+
     logo = Base64ImageField()
     tariffs = TariffSerializer(many=True, read_only=True)
 
@@ -131,6 +195,8 @@ class SubscriptionTariffSerializer(serializers.ModelSerializer):
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    """Сериализатор для кастомного юзера."""
+
     class Meta:
         model = User
         fields = ('id',
@@ -142,6 +208,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class CustomCurrentUserSerializer(serializers.Serializer):
+    """Сериализатор для вывода текущего юзера."""
+
     id = serializers.IntegerField()
     full_name = serializers.CharField()
     phone_number = serializers.CharField()
@@ -158,6 +226,8 @@ class CustomCurrentUserSerializer(serializers.Serializer):
 
 
 class UserTariffSerializer(serializers.ModelSerializer):
+    """Сериализатор для связи юзера и тарифа."""
+
     tariff = serializers.StringRelatedField(read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
 

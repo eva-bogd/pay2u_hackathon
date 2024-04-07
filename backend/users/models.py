@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-# Create your models here.
 class User(AbstractUser):
     """ Кастомный User """
 
@@ -12,7 +11,6 @@ class User(AbstractUser):
         verbose_name='Адрес электронной почты',
         help_text='Введите адрес электронной почты',
     )
-
     first_name = models.CharField(
         max_length=MODELS_RESTRICTIONS['max_length'],
         blank=False,
@@ -20,7 +18,6 @@ class User(AbstractUser):
         help_text='Введите имя пользователя',
         default='Иван',
     )
-
     last_name = models.CharField(
         max_length=MODELS_RESTRICTIONS['max_length'],
         blank=False,
@@ -28,14 +25,12 @@ class User(AbstractUser):
         help_text='Введите фамилию пользователя',
         default='Иванов',
     )
-
     father_name = models.CharField(
         max_length=MODELS_RESTRICTIONS['max_length'],
         verbose_name='Отчество',
         help_text='Введите отчетство пользователя',
         default='Иванович',
     )
-
     phone_number = models.CharField(
         max_length=MODELS_RESTRICTIONS['middle_length'],
         blank=False,

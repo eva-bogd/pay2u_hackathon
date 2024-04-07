@@ -1,37 +1,47 @@
 from datetime import datetime, timedelta
 
-from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from services.models import Subscription, Tariff, Transaction, UserTariff
 
-from .serializers import (MySubscriptionSerializer, PartnerRulesSerializer,
-                          PDpolicySerializer, ServiceSerializer,
-                          SubscriptionTariffSerializer, TariffSerializer,
+from .serializers import (MySubscriptionSerializer, NextPaymentSerializer,
+                          PartnerRulesSerializer, PDpolicySerializer,
+                          ServiceSerializer, SubscriptionTariffSerializer,
+                          TariffSerializer, TotalCashbackSerializer,
                           TransactionSerializer, UserTariffSerializer)
+<<<<<<< HEAD
 from .utils import (calculate_total_cashback, generate_promo_code,
                     get_next_payments_data, simulate_payment_status)
+=======
+from .utils import (PAYMENT_SUCCESS, generate_promo_code, get_next_payments,
+                    simulate_payment_status)
+>>>>>>> P2U17/tests_and_code_refactoring
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок"""
-    # http://127.0.0.1:8000/api/v1/services/
     queryset = Subscription.objects.all()
     serializer_class = ServiceSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
-    # для экрана choose_plan
-    # http://127.0.0.1:8000/api/v1/services/<services_id>/
     def retrieve(self, request, pk=None):
         """Возвращает подписку и список тарифов к ней."""
+<<<<<<< HEAD
         subscription_id = pk
         queryset = Subscription.objects.filter(
             id=subscription_id).prefetch_related('tariffs')
         serializer = SubscriptionTariffSerializer(queryset, many=True,
                                                   context={'request': request})
+=======
+        subscription = get_object_or_404(Subscription, pk=pk)
+        serializer = SubscriptionTariffSerializer(
+            subscription,
+            context={'request': request},
+        )
+>>>>>>> P2U17/tests_and_code_refactoring
         return Response(serializer.data)
 
     @action(detail=True,
@@ -39,10 +49,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
             url_path='partner_rules')
     def get_partner_rules(self, request, pk=None):
         """Возвращает правила партнера."""
-        subscription = self.get_object()
-        serializer = PartnerRulesSerializer(
-            {'partner_rules': subscription.partner_rules}
-        )
+        subscription = get_object_or_404(Subscription, pk=pk)
+        serializer = PartnerRulesSerializer(subscription)
         return Response(serializer.data)
 
     @action(detail=True,
@@ -50,10 +58,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
             url_path='personal_data_policy')
     def get_personal_data_policy(self, request, pk=None):
         """Возвращает политику обработки персональных данных."""
-        subscription = self.get_object()
-        serializer = PDpolicySerializer(
-            {'personal_data_policy': subscription.personal_data_policy}
-        )
+        subscription = get_object_or_404(Subscription, pk=pk)
+        serializer = PDpolicySerializer(subscription)
         return Response(serializer.data)
 
 
@@ -73,40 +79,18 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
             url_path='cashback')
     def get_cashback(self, request):
         """Возвращает сумму кэшбэка по подпискам на текущий месяц."""
-        now = datetime.now().date()
-        month_start = now.replace(day=1)
-        next_month = month_start.replace(month=month_start.month + 1)
-        mytariffs = self.get_queryset()
-        # все подписки начало которых в этом месяце или
-        # где есть автропрдление и конец подписки в этом месяце
-        payload = mytariffs.filter(
-            Q(start_date__gte=month_start)
-            | (Q(auto_renewal=True) & Q(end_date__lt=next_month))
-        )
-        total_cashback = calculate_total_cashback(payload)
-        response_data = {
-            "total_cashback": total_cashback
-        }
-        return Response(response_data)
+        user = request.user
+        serializer = TotalCashbackSerializer(user)
+        return Response(serializer.data)
 
     @action(detail=False,
             methods=['get'],
             url_path='next_payment')
     def get_next_payment(self, request):
         """Возвращает дату и сумму следующего запланированного платежа."""
-        mytariffs = self.get_queryset()
-        (next_payment_date,
-         next_payment_tariffs) = get_next_payments_data(mytariffs)
-        # суммируем цену к оплате по тарифам с датой окончания
-        # которую нашли выше
-        payment_sum = next_payment_tariffs.aggregate(
-            Sum('tariff__price')
-        )['tariff__price__sum']
-        response_data = {
-            'next_payment_date': next_payment_date,
-            'payment_sum': payment_sum,
-        }
-        return Response(response_data)
+        user = request.user
+        serializer = NextPaymentSerializer(user)
+        return Response(serializer.data)
 
     @action(detail=False,
             methods=['get'],
@@ -114,7 +98,7 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_next_payment_details(self, request):
         """Возвращает дату и сумму следующего запланированного платежа."""
         mytariffs = self.get_queryset()
-        _, next_payment_tariffs = get_next_payments_data(mytariffs)
+        next_payment_tariffs = get_next_payments(mytariffs)
         serializer = MySubscriptionSerializer(
             next_payment_tariffs,
             many=True
@@ -134,10 +118,9 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     @action(methods=['post'],
             detail=True,
             url_path='autorenewal_off')
-    def autorenewal_off(self, request, *args, **kwargs):
+    def autorenewal_off(self, request, pk=None):
         """Метод для отключения автопродления."""
-        user_tariff_id = kwargs.get('pk')
-        user_tariff = UserTariff.objects.get(id=user_tariff_id)
+        user_tariff = get_object_or_404(UserTariff, pk=pk)
         user_tariff.auto_renewal = False
         user_tariff.save()
         serializer = UserTariffSerializer(user_tariff)
@@ -146,10 +129,9 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     @action(methods=['post'],
             detail=True,
             url_path='autorenewal_on')
-    def autorenewal_on(self, request, *args, **kwargs):
+    def autorenewal_on(self, request, pk=None):
         """Метод для включения автопродления."""
-        user_tariff_id = kwargs.get('pk')
-        user_tariff = UserTariff.objects.get(id=user_tariff_id)
+        user_tariff = get_object_or_404(UserTariff, pk=pk)
         user_tariff.auto_renewal = True
         user_tariff.save()
         serializer = UserTariffSerializer(user_tariff)
@@ -158,13 +140,9 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class TariffViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для тарифов."""
-    # получить инфу о конкретном тарифе:
-    # http://127.0.0.1:8000/api/v1/tariffs/<tariff_id>/
     queryset = Tariff.objects.all()
     serializer_class = TariffSerializer
 
-    # метод для подписки на тариф (создание тарифа пользователя)
-    # http://127.0.0.1:8000/api/v1/tariffs/<tariff_id>/subscribe/
     @action(methods=['post'],
             detail=True,
             url_path='subscribe')
