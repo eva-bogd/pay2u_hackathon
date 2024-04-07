@@ -1,5 +1,5 @@
-from factory import Faker, SubFactory
 import factory.fuzzy
+from factory import Faker, SubFactory
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
 
@@ -13,6 +13,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     last_name = Faker('last_name')
     father_name = Faker('first_name_male')
     phone_number = Faker('phone_number')
+    username = Faker('user_name')
+    password = Faker('password')
 
 
 class SubscriptionFactory(factory.django.DjangoModelFactory):
@@ -60,6 +62,6 @@ class TransactionFactory(factory.django.DjangoModelFactory):
 
     user_tariff = SubFactory(UserTariffFactory)
     date = Faker('date')
-    cashback = Faker('random_int', min=1, max=100)
+    cashback = Faker('random_int', min=1, max=20)
     amount = Faker('pydecimal', left_digits=5, right_digits=2)
-    payment_status = Faker('random_element', elements=[0, 1])
+    payment_status = 1

@@ -22,18 +22,7 @@ def calculate_cashback_amount(instance: UserTariff) -> Decimal:
     return cashback_amount
 
 
-def calculate_total_cashback(payload: QuerySet[UserTariff]) -> Decimal:
-    """Считает сумму кэшбэка."""
-    total_cashback = Decimal(0)
-    for user_tariff in payload:
-        cashback_amount = calculate_cashback_amount(user_tariff)
-        total_cashback += cashback_amount
-    return round(total_cashback, 2)
-
-
-def get_next_payments_data(
-    data: QuerySet[UserTariff]
-) -> tuple[str, QuerySet[UserTariff]]:
+def get_next_payments_date(data: QuerySet[UserTariff]) -> str:
     """Возвращает следующую дату платежа и перечень тарифов к оплате."""
     # тарифы по которым есть автопродление
     auto_renewal_tariffs = data.filter(auto_renewal=True)
@@ -41,12 +30,20 @@ def get_next_payments_data(
     next_payment_date = auto_renewal_tariffs.aggregate(
         min_end_date=Min('end_date')
     )['min_end_date']
+    return next_payment_date
+
+
+def get_next_payments(data: QuerySet[UserTariff]) -> QuerySet[UserTariff]:
+    """Возвращает перечень тарифов к оплате на следующую дату платежа."""
+    # тарифы по которым есть автопродление
+    auto_renewal_tariffs = data.filter(auto_renewal=True)
+    next_payment_date = get_next_payments_date(data)
     # суммируем цену к оплате по тарифам с датой окончания
     # которую нашли выше
     queryset = auto_renewal_tariffs.filter(
         end_date=next_payment_date
     )
-    return next_payment_date, queryset
+    return queryset
 
 
 def simulate_payment_status():
