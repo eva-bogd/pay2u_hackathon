@@ -12,6 +12,7 @@ from .serializers import (MySubscriptionSerializer, NextPaymentSerializer,
                           TariffSerializer, TotalCashbackSerializer,
                           TransactionSerializer, UserTariffSerializer)
 from .utils import (generate_promo_code, get_next_payments,
+from .utils import (generate_promo_code, get_next_payments,
                     simulate_payment_status)
 
 
@@ -24,6 +25,7 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk=None):
         """Возвращает подписку и список тарифов к ней."""
+
         subscription = get_object_or_404(Subscription, pk=pk)
         serializer = SubscriptionTariffSerializer(
             subscription,
