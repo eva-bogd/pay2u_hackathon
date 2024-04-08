@@ -11,13 +11,8 @@ from .serializers import (MySubscriptionSerializer, NextPaymentSerializer,
                           ServiceSerializer, SubscriptionTariffSerializer,
                           TariffSerializer, TotalCashbackSerializer,
                           TransactionSerializer, UserTariffSerializer)
-<<<<<<< HEAD
-from .utils import (calculate_total_cashback, generate_promo_code,
-                    get_next_payments_data, simulate_payment_status)
-=======
 from .utils import (PAYMENT_SUCCESS, generate_promo_code, get_next_payments,
                     simulate_payment_status)
->>>>>>> P2U17/tests_and_code_refactoring
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -29,19 +24,11 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk=None):
         """Возвращает подписку и список тарифов к ней."""
-<<<<<<< HEAD
-        subscription_id = pk
-        queryset = Subscription.objects.filter(
-            id=subscription_id).prefetch_related('tariffs')
-        serializer = SubscriptionTariffSerializer(queryset, many=True,
-                                                  context={'request': request})
-=======
         subscription = get_object_or_404(Subscription, pk=pk)
         serializer = SubscriptionTariffSerializer(
             subscription,
             context={'request': request},
         )
->>>>>>> P2U17/tests_and_code_refactoring
         return Response(serializer.data)
 
     @action(detail=True,
