@@ -15,9 +15,9 @@
 - Управление автопродлением подписки.
 
 ------------
-Демо версия приложения доступна по адресу: https://ndevd.github.io/PAY2U/
-Ссылка на swagger https://dfter123.pythonanywhere.com/swagger/
-Cсылку на документацию: https://dfter123.pythonanywhere.com/redoc/
+Демо версия приложения доступна по адресу: https://ndevd.github.io/PAY2U/<br>
+Ссылка на swagger https://dfter123.pythonanywhere.com/swagger/<br>
+Cсылку на документацию: https://dfter123.pythonanywhere.com/redoc/<br>
 
 
 ### Установка и запуск:
