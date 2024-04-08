@@ -1,7 +1,6 @@
 import pytest
 from services.models import Subscription, Tariff, Transaction, UserTariff
 from users.models import User
-from .fixture import user, subscription, tariff, user_tariff, transaction
 
 
 @pytest.mark.django_db

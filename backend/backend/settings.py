@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework.authtoken',
     'rest_framework',
+    'corsheaders',
     'djoser',
     'users.apps.UsersConfig',
     'services.apps.ServicesConfig',
@@ -43,12 +44,16 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -81,8 +86,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #     }
 # }
 
-# https://docs.djangoproject.com/en/5.0/ref/settings/
-# https://docs.djangoproject.com/en/5.0/ref/models/fields/#django.db.models.AutoField
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
