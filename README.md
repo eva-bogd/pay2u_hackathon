@@ -16,6 +16,9 @@
 
 ------------
 Демо версия приложения доступна по адресу: https://ndevd.github.io/PAY2U/
+Ссылка на swagger https://dfter123.pythonanywhere.com/swagger/
+Cсылку на документацию: https://dfter123.pythonanywhere.com/redoc/
+
 
 ### Установка и запуск:
 
@@ -63,9 +66,9 @@ docker-compose exec backend python manage.py migrate
 ```
 docker-compose exec backend python manage.py createsuperuser
 ```
-------------
-Ссылка на swagger: http://localhost/swagger/ <br>
-Ссылка на доку: http://localhost/redoc/
+
+Ссылка на swagger при локальном запуске: http://localhost/swagger/ <br>
+Ссылка на доку при локальном запуске: http://localhost/redoc/
 
 
 ### Технологии:
