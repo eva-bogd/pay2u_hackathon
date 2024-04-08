@@ -11,6 +11,7 @@ from .serializers import (MySubscriptionSerializer, NextPaymentSerializer,
                           ServiceSerializer, SubscriptionTariffSerializer,
                           TariffSerializer, TotalCashbackSerializer,
                           TransactionSerializer, UserTariffSerializer)
+
 from .utils import (PAYMENT_SUCCESS, generate_promo_code, get_next_payments,
                     simulate_payment_status)
 
@@ -24,6 +25,7 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def retrieve(self, request, pk=None):
         """Возвращает подписку и список тарифов к ней."""
+
         subscription = get_object_or_404(Subscription, pk=pk)
         serializer = SubscriptionTariffSerializer(
             subscription,
@@ -53,6 +55,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет для подписок пользователя"""
     serializer_class = MySubscriptionSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('tariff__subscription__name',)
 
     def get_queryset(self):
         user = self.request.user
@@ -96,10 +100,7 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_payment_history(self, request):
         """Возвращает историю платежей."""
         user = request.user
-        mytransactions = Transaction.objects.filter(
-            user_tariff__user=user,
-            payment_status=PAYMENT_SUCCESS
-        )
+        mytransactions = user.transactions.filter(payment_status=1)
         serializer = TransactionSerializer(mytransactions, many=True)
         return Response(serializer.data)
 
