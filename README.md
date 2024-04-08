@@ -1,4 +1,21 @@
-# pay2u_hackathon
+[![Built with Django REST framework](https://img.shields.io/badge/Built_with-Django_REST_framework-green.svg)](https://www.django-rest-framework.org/)
+
+# ХАКАТОН+. Задача PAY2U
+
+## Backend для MVP web-приложения с новым UX для PAY2U
+
+Данное web-приложение - это инструмент для управления подписками на различные онлайн-сервисы.
+В API релизованы следующие функции:
+- Просмотр доступных сервисов для подписки.
+- Выбор тарифного плана.
+- Подписка на выбранный сервис.
+- Просмотр активных/неактивных подписок пользователя.
+- Получение информации о сумме накопленного кешбека.
+- Получение информации о дате и сумме следующего запланированного платежа, а также истории платежей.
+- Управление автопродлением подписки.
+
+------------
+Демо версия приложения доступна по адресу: https://ndevd.github.io/PAY2U/
 
 ### Установка и запуск:
 
@@ -28,7 +45,7 @@ ALLOWED_HOSTS=backend, localhost, 127.0.0.1
 docker-compose up --build
 ```
 
-4. Введите команду для сбора статических файлов:
+4. Введите команду для сбора статичных файлов:
 
 ```
 docker-compose exec backend python manage.py collectstatic --no-input
@@ -44,13 +61,24 @@ docker-compose exec backend python manage.py migrate
 6. Создайте суперпользователя:
 
 ```
-python manage.py createsuperuser
+docker-compose exec backend python manage.py createsuperuser
 ```
-
-Ссылка на swagger: http://localhost/swagger/
+------------
+Ссылка на swagger: http://localhost/swagger/ <br>
 Ссылка на доку: http://localhost/redoc/
 
 
-## Backend Team:
+### Технологии:
+
+* Python 3.10
+* Django 4.2
+* Django REST framework 3.14.0
+* Сelery 5.3.6
+* Nginx
+* Docker
+* PostgresQL
+
+-----------
+### Команда backend разработчиков:
 [Artem Tereschenko](https://github.com/Artem-Ter) <br />
 [Evgeniia Bogdanova](https://github.com/eva-bogd)
