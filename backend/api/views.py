@@ -11,8 +11,7 @@ from .serializers import (MySubscriptionSerializer, NextPaymentSerializer,
                           ServiceSerializer, SubscriptionTariffSerializer,
                           TariffSerializer, TotalCashbackSerializer,
                           TransactionSerializer, UserTariffSerializer)
-
-from .utils import (PAYMENT_SUCCESS, generate_promo_code, get_next_payments,
+from .utils import (generate_promo_code, get_next_payments,
                     simulate_payment_status)
 
 

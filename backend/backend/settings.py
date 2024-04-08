@@ -76,7 +76,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -86,7 +85,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
-
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
