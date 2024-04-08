@@ -78,7 +78,7 @@ docker-compose exec backend python manage.py createsuperuser
 * Docker
 * PostgresQL
 
-------------
+-----------
 ### Команда backend разработчиков:
 [Artem Tereschenko](https://github.com/Artem-Ter) <br />
 [Evgeniia Bogdanova](https://github.com/eva-bogd)
