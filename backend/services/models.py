@@ -14,6 +14,7 @@ class Subscription(models.Model):
         verbose_name='Логотип',
         upload_to='services/images/',
         blank=True,
+        null=True,
     )
     description = models.TextField(
         verbose_name='Описание')
@@ -67,18 +68,21 @@ class Tariff(models.Model):
         verbose_name='Пробный период',
         choices=PeriodChoices.choices,
         blank=True,
+        null=True,
     )
     test_price = models.DecimalField(
         verbose_name='Цена для пробного периода',
         max_digits=10,
         decimal_places=2,
         blank=True,
+        null=True,
     )
     cashback = models.DecimalField(
         verbose_name='Кешбэк',
         max_digits=10,
         decimal_places=2,
         blank=True,
+        null=True,
     )
     cashback_conditions = models.TextField(
         verbose_name='Условия начисления кешбэка'
@@ -114,6 +118,7 @@ class UserTariff(models.Model):
     end_date = models.DateField(
         verbose_name='Дата окончания',
         blank=True,
+        null=True
     )
     auto_renewal = models.BooleanField(
         verbose_name='Aвтопродление',
@@ -131,6 +136,7 @@ class UserTariff(models.Model):
     promo_code_period = models.DateField(
         verbose_name='Дата истечения промокода',
         blank=True,
+        null=True
     )
 
     class Meta:
@@ -161,6 +167,7 @@ class Transaction(models.Model):
     date = models.DateField(
         verbose_name='Дата оплаты',
         blank=True,
+        null=True,
     )
     amount = models.DecimalField(
         verbose_name='Сумма',
@@ -172,6 +179,7 @@ class Transaction(models.Model):
         max_digits=10,
         decimal_places=2,
         blank=True,
+        null=True,
     )
     payment_status = models.PositiveSmallIntegerField(
         verbose_name='Статус оплаты',
