@@ -11,7 +11,7 @@ from .serializers import (MySubscriptionSerializer, NextPaymentSerializer,
                           ServiceSerializer, SubscriptionTariffSerializer,
                           TariffSerializer, TotalCashbackSerializer,
                           TransactionSerializer, UserTariffSerializer)
-from .utils import (generate_promo_code, get_next_payments,
+from .utils import (PAYMENT_SUCCESS, generate_promo_code, get_next_payments,
                     simulate_payment_status)
 
 
@@ -99,7 +99,10 @@ class MySubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_payment_history(self, request):
         """Возвращает историю платежей."""
         user = request.user
-        mytransactions = user.transactions.filter(payment_status=1)
+        mytransactions = Transaction.objects.filter(
+            user_tariff__user=user,
+            payment_status=PAYMENT_SUCCESS
+        )
         serializer = TransactionSerializer(mytransactions, many=True)
         return Response(serializer.data)
 

@@ -52,7 +52,7 @@ class UserTariffFactory(factory.django.DjangoModelFactory):
     end_date = Faker('date')
     is_direct = Faker('boolean')
     auto_renewal = Faker('boolean')
-    promo_code = Faker('text')
+    promo_code = Faker('text', max_nb_chars=10)
     promo_code_period = Faker('date')
 
 
