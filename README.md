@@ -27,7 +27,7 @@ Cсылку на документацию: https://dfter123.pythonanywhere.com/r
 1. Склонируйте репозиторий с помощью команды:
 
 ```
-git clone https://github.com/Artem-Ter/pay2u_hackathon.git
+git clone https://github.com/eva-bogd/pay2u_hackathon.git
 ```
 
 2. В папке проекта infra/ создайте файл .env со следующим содержимым:
